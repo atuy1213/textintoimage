@@ -1,9 +1,7 @@
 package handler
 
 import (
-	"io"
 	"net/http"
-	"os"
 )
 
 func Handler(w http.ResponseWriter, r *http.Request) {
@@ -19,24 +17,12 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer fileSrc.Close()
 
-	fileDest, err := os.Create("/tmp/original.jpg")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer fileDest.Close()
-
-	if _, err := io.Copy(fileDest, fileSrc); err != nil {
+	fileBytes := []byte{}
+	if _, err := fileSrc.Read(fileBytes); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	fileBytes, err := os.ReadFile(fileDest.Name())
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
-		return
-	}
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/octet-stream")
 	w.Write(fileBytes)
