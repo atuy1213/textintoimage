@@ -1,1 +1,1 @@
-open ../koruri/Koruri-Bold.ttf: no such file or directory
+open /var/task/koruri/Koruri-Bold.ttf: no such file or directory
