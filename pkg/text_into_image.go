@@ -4,31 +4,22 @@ import (
 	"image"
 	"image/draw"
 	_ "image/jpeg"
-	"image/png"
-	"os"
 )
 
-func textIntoImage() {
-	src, err := os.Open("src/text.png")
-	if err != nil {
-		panic(err)
-	}
-	defer src.Close()
-	dst, err := os.Open("src/sample.jpeg")
-	if err != nil {
-		panic(err)
-	}
-	defer dst.Close()
+type TextIntoImageInput struct {
+	SrcImage      image.Image
+	MainTextImage image.Image
+	SubTextImage  image.Image
+}
 
+type TextIntoImageOutput struct {
+	Image image.Image
+}
+
+func TextIntoImage(input *TextIntoImageInput) (*TextIntoImageOutput, error) {
 	// デコードしてイメージオブジェクトを準備
-	srcImg, _, err := image.Decode(src)
-	if err != nil {
-		panic(err)
-	}
-	dstImg, _, err := image.Decode(dst)
-	if err != nil {
-		panic(err)
-	}
+	srcImg := input.MainTextImage
+	dstImg := input.SrcImage
 
 	// 書き出し用のイメージを準備
 	outRect := image.Rectangle{image.Pt(0, 0), dstImg.Bounds().Size()}
@@ -42,9 +33,9 @@ func textIntoImage() {
 	srcRect := image.Rectangle{image.Pt(0, 0), srcImg.Bounds().Size()}
 	draw.Draw(out, srcRect, srcImg, image.Pt(0, 0), draw.Over)
 
-	// 書き出し用ファイル準備
-	outfile, _ := os.Create("dist/out.png")
-	defer outfile.Close()
-	// 書き出し
-	png.Encode(outfile, out)
+	ret := &TextIntoImageOutput{
+		Image: out,
+	}
+
+	return ret, nil
 }
