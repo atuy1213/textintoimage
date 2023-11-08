@@ -24,7 +24,8 @@ type TextToImageOutput struct {
 func TextToImage(input *TextToImageInput) (*TextToImageOutput, error) {
 	// フォントファイルを読み込み
 	wd, _ := os.Getwd()
-	slog.Info("Loading font file...", "pwd", wd)
+	dir, _ := os.ReadDir("../")
+	slog.Info("Loading font file...", "pwd", wd, "ls ..", dir)
 	ftBinary, err := os.ReadFile("../koruri/Koruri-Bold.ttf")
 	if err != nil {
 		return nil, err
