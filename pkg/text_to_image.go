@@ -3,7 +3,6 @@ package pkg
 import (
 	"image"
 	_ "image/jpeg"
-	"log/slog"
 	"os"
 	"path"
 
@@ -25,8 +24,6 @@ type TextToImageOutput struct {
 func TextToImage(input *TextToImageInput) (*TextToImageOutput, error) {
 	// フォントファイルを読み込み
 	wd, _ := os.Getwd()
-	dir, _ := os.ReadDir(path.Join(wd))
-	slog.Info("Loading font file...", "pwd", wd, "ls", dir)
 	ftBinary, err := os.ReadFile(path.Join(wd, "koruri", "Koruri-Bold.ttf"))
 	if err != nil {
 		return nil, err
