@@ -2,7 +2,6 @@ package handler
 
 import (
 	"bytes"
-	"encoding/json"
 	"image/png"
 	"net/http"
 
@@ -17,10 +16,8 @@ type Request struct {
 func Handler(w http.ResponseWriter, r *http.Request) {
 
 	var req Request
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	req.MainText = r.FormValue("main_text")
+
 	defer r.Body.Close()
 
 	if err := r.ParseMultipartForm(32 << 20); err != nil {
