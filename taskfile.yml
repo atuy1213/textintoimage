@@ -1,0 +1,42 @@
+version: '3'
+
+tasks:
+
+  setup:
+    cmds:
+      - task: setup-go
+      - task: setup-proto  
+  setup-go:
+    cmds:
+      - go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+      - go install github.com/cosmtrek/air@latest
+      - go install github.com/rakyll/gotest@latest
+      - go install github.com/sanposhiho/gomockhandler@latest
+      - go install github.com/tommy-sho/grouper@latest
+  
+  run-api:
+    dir: api
+    cmds:
+      - air
+  
+  update-go-mod:
+    dir: api
+    cmds:
+      - go mod tidy
+
+  fmt-lint-api:
+    dir: api
+    cmds:
+      - golangci-lint run ./... -v --fix
+
+  demo-color:
+    cmds:
+      - ./demo/color.sh
+
+  demo-size:
+    cmds:
+      - ./demo/size.sh
+  
+  demo-font:
+    cmds:
+      - ./demo/font.sh
