@@ -4,16 +4,15 @@ import (
 	"bytes"
 	"encoding/json"
 	"image"
+	"image/draw"
 	_ "image/jpeg"
 	"image/png"
-	_ "image/png"
 	"log/slog"
 	"mime/multipart"
 	"net/http"
 	"strconv"
 	"time"
 
-	"github.com/atuy1213/textintoimage/api/pkg"
 	"github.com/atuy1213/textintoimage/api/pkg/textimage"
 	"golang.org/x/image/font"
 	"golang.org/x/image/math/fixed"
@@ -84,17 +83,17 @@ func (u *handler) Handle() http.HandlerFunc {
 		dr.Dot.Y = fixed.I(req.TopMargin)
 		dr.DrawString(req.Text)
 
-		imageInsertedImage, err := pkg.TextIntoImage(&pkg.TextIntoImageInput{
-			SrcImage:      srcImage,
-			MainTextImage: textImage,
-		})
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+		retRect := image.Rectangle{image.Pt(0, 0), srcImage.Bounds().Size()}
+		ret := image.NewRGBA(retRect)
+
+		srcRect := image.Rectangle{image.Pt(0, 0), srcImage.Bounds().Size()}
+		draw.Draw(ret, srcRect, srcImage, image.Pt(0, 0), draw.Src)
+
+		textRect := image.Rectangle{image.Pt(0, 0), textImage.Bounds().Size()}
+		draw.Draw(ret, textRect, textImage, image.Pt(0, 0), draw.Over)
 
 		buf := &bytes.Buffer{}
-		if err := png.Encode(buf, imageInsertedImage.Image); err != nil {
+		if err := png.Encode(buf, ret); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
