@@ -8,11 +8,15 @@ import (
 	"image/png"
 	_ "image/png"
 	"log/slog"
+	"mime/multipart"
 	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/atuy1213/textintoimage/api/pkg"
+	"github.com/atuy1213/textintoimage/api/pkg/textimage"
+	"golang.org/x/image/font"
+	"golang.org/x/image/math/fixed"
 )
 
 type handler struct{}
@@ -29,11 +33,16 @@ type Request struct {
 	TopMargin int
 	Color     string
 	Font      string
+	Src       multipart.File
 }
 
 func (u *handler) Handle() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// ctx := r.Context()
+		if err := r.ParseMultipartForm(32 << 20); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
 		var req Request
 		req.Text = r.FormValue("text")
@@ -43,43 +52,41 @@ func (u *handler) Handle() http.HandlerFunc {
 		req.TopMargin, _ = strconv.Atoi(r.FormValue("topMargin"))
 		req.Color = r.FormValue("color")
 		req.Font = r.FormValue("font")
-
+		file, _, err := r.FormFile("upload")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer file.Close()
+		req.Src = file
 		slog.Info("rquest", "req", req)
-		if err := r.ParseMultipartForm(32 << 20); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
 
-		fileSrc, _, err := r.FormFile("upload")
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		defer fileSrc.Close()
-
-		srcImage, _, err := image.Decode(fileSrc)
+		srcImage, _, err := image.Decode(file)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		textImage, err := pkg.TextToImage(&pkg.TextToImageInput{
-			Text:          req.Text,
-			Size:          req.Size,
-			ImageWidth:    req.Width,
-			ImageHeight:   req.Height,
-			TextTopMargin: req.TopMargin,
-			Color:         req.Color,
-			Font:          req.Font,
-		})
+		textImage := image.NewRGBA(image.Rect(0, 0, req.Width, req.Height))
+		src := textimage.NewColor(req.Color).Uniform()
+		face, err := textimage.NewFont(req.Font).Face(req.Size)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+		dr := &font.Drawer{
+			Dst:  textImage,
+			Src:  src,
+			Face: *face,
+			Dot:  fixed.Point26_6{},
+		}
+		dr.Dot.X = (fixed.I(req.TopMargin) - dr.MeasureString(req.Text)) / 2
+		dr.Dot.Y = fixed.I(req.TopMargin)
+		dr.DrawString(req.Text)
 
 		imageInsertedImage, err := pkg.TextIntoImage(&pkg.TextIntoImageInput{
 			SrcImage:      srcImage,
-			MainTextImage: textImage.MainTextImage,
+			MainTextImage: textImage,
 		})
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

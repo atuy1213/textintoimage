@@ -9,7 +9,7 @@ import (
 )
 
 type GenerateTextImageInput struct {
-	FontType FontType
+	Font     Font
 	Text     string
 	Size     float64
 	Width    int
@@ -18,7 +18,7 @@ type GenerateTextImageInput struct {
 }
 
 func GenerateTextImage(ctx context.Context, input *GenerateTextImageInput) (image.Image, error) {
-	face, err := PrepareFontFace(input.FontType, input.Size)
+	face, err := input.Font.Face(input.Size)
 	if err != nil {
 		return nil, err
 	}

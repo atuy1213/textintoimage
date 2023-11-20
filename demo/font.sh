@@ -9,7 +9,7 @@ curl \
   -F "width=300" \
   -F "height=100" \
   -F "topMargin=90" \
-  -F "color=Black" \
+  -F "color=black" \
   -F "font=Bold" \
   http://localhost:8080 > dist/font/bold.jpeg
 
@@ -22,7 +22,7 @@ curl \
   -F "width=300" \
   -F "height=100" \
   -F "topMargin=90" \
-  -F "color=Black" \
+  -F "color=black" \
   -F "font=Regular" \
   http://localhost:8080 > dist/font/regular.jpeg
 
@@ -35,6 +35,6 @@ curl \
   -F "width=300" \
   -F "height=100" \
   -F "topMargin=90" \
-  -F "color=Black" \
+  -F "color=black" \
   -F "font=Light" \
   http://localhost:8080 > dist/font/light.jpeg

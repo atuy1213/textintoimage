@@ -9,7 +9,7 @@ curl \
   -F "width=150" \
   -F "height=500" \
   -F "topMargin=50" \
-  -F "color=Black" \
+  -F "color=black" \
   http://localhost:8080 > dist/size/small.jpeg
 
 curl \
@@ -21,7 +21,7 @@ curl \
   -F "width=300" \
   -F "height=100" \
   -F "topMargin=90" \
-  -F "color=Black" \
+  -F "color=black" \
   http://localhost:8080 > dist/size/medium.jpeg
 
 curl \
@@ -33,5 +33,5 @@ curl \
   -F "width=450" \
   -F "height=400" \
   -F "topMargin=150" \
-  -F "color=Black" \
+  -F "color=black" \
   http://localhost:8080 > dist/size/large.jpeg
